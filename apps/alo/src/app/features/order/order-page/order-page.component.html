@@ -1,0 +1,317 @@
+<div style="background:linear-gradient(135deg,#050508 0%,#0d0d18 50%,#050508 100%); min-height:100vh; padding-bottom:110px;">
+
+  <!-- HERO -->
+  <section style="position:relative; overflow:hidden; padding:3rem 1rem 2.5rem; text-align:center;">
+    <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;">
+      <div style="position:absolute;top:15%;left:10%;width:200px;height:200px;border-radius:50%;background:rgba(var(--neon-rgb), 0.06);filter:blur(50px);"></div>
+      <div style="position:absolute;top:40%;right:8%;width:150px;height:150px;border-radius:50%;background:rgba(255,45,155,0.06);filter:blur(40px);"></div>
+      <div style="position:absolute;bottom:10%;left:30%;width:180px;height:180px;border-radius:50%;background:rgba(255,140,0,0.04);filter:blur(50px);"></div>
+    </div>
+    <div style="position:relative;z-index:1;">
+      <div style="width:140px;height:140px;margin:0 auto 1.5rem;position:relative;display:flex;align-items:center;justify-content:center;">
+        @if (!logoLoaded && fb.logoUrl()) {
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+            <div class="loader-spinner"></div>
+          </div>
+        }
+        @if (logoError || !fb.logoUrl()) {
+          <div style="font-size:5rem;line-height:1;">{{ brand.emoji }}</div>
+        } @else {
+          <img [src]="fb.logoUrl()" [alt]="brand.nombre"
+            (load)="onLogoLoad()" (error)="onLogoError()"
+            [style.visibility]="logoLoaded ? 'visible' : 'hidden'"
+            style="width:140px;height:140px;object-fit:contain;border-radius:50%;border:2px solid rgba(var(--neon-rgb), 0.3);box-shadow:0 0 24px rgba(var(--neon-rgb), 0.3);" />
+        }
+      </div>
+      <h1 style="font-family:var(--font-title);font-size:clamp(2.5rem,10vw,4rem);letter-spacing:0.08em;
+                 background:linear-gradient(90deg,#ff2d9b,var(--neon),#ff8c00);
+                 -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+                 text-shadow:none;line-height:1;">
+        {{ brand.nombreUpper }}
+      </h1>
+      <p style="font-family:'Nunito',sans-serif;color:rgba(var(--neon-rgb), 0.8);margin-top:0.5rem;font-size:1rem;font-weight:600;">
+        🔥 Arma tu pedido y pídelo por WhatsApp
+      </p>
+      @if (offline.pendingCount() > 0) {
+        <div style="margin-top:0.75rem;display:inline-block;background:rgba(255,140,0,0.15);border:1px solid rgba(255,140,0,0.4);border-radius:20px;padding:4px 14px;font-size:0.78rem;color:#ff8c00;">
+          ⚠️ {{ offline.pendingCount() }} pedido(s) sin sincronizar
+        </div>
+      }
+    </div>
+  </section>
+
+  <section style="max-width:700px;margin:0 auto;padding:0 1rem;">
+
+    <!-- PASO 1: DATOS DEL CLIENTE -->
+    <div style="background:rgba(13,13,18,0.8);border:1px solid rgba(var(--neon-rgb), 0.15);border-radius:14px;padding:1.1rem;margin-bottom:1.75rem;">
+      <h3 style="font-family:var(--font-title);font-size:1rem;color:var(--neon);margin-bottom:0.85rem;letter-spacing:0.06em;">
+        1️⃣ Tus datos
+      </h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+        <div>
+          <label style="display:block;font-size:0.75rem;font-weight:700;color:rgba(240,249,255,0.45);margin-bottom:0.3rem;font-family:'Nunito',sans-serif;">👤 Nombre *</label>
+          <input type="text" placeholder="Ej: Luis García"
+            [formField]="fd.nombre"
+            style="display:block;width:100%;background:rgba(5,5,8,0.7);border:1px solid rgba(var(--neon-rgb), 0.2);border-radius:8px;
+                   color:#f0f9ff;font-family:'Nunito',sans-serif;font-size:0.9rem;padding:0.55rem 0.75rem;outline:none;box-sizing:border-box;" />
+        </div>
+        <div>
+          <label style="display:block;font-size:0.75rem;font-weight:700;color:rgba(240,249,255,0.45);margin-bottom:0.3rem;font-family:'Nunito',sans-serif;">📱 Teléfono</label>
+          <input type="tel" placeholder="Ej. 8181234567"
+            [formField]="fd.telefono"
+            style="display:block;width:100%;background:rgba(5,5,8,0.7);border:1px solid rgba(var(--neon-rgb), 0.2);border-radius:8px;
+                   color:#f0f9ff;font-family:'Nunito',sans-serif;font-size:0.9rem;padding:0.55rem 0.75rem;outline:none;box-sizing:border-box;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 2: POPULARES -->
+    @if (fb.populares().length > 0) {
+      <h2 style="font-family:var(--font-title);font-size:1.2rem;color:var(--neon);letter-spacing:0.06em;margin-bottom:1rem;">
+        2️⃣ Los más pedidos
+      </h2>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.75rem;">
+        @for (pop of fb.populares(); track pop.id) {
+          <div (click)="agregarPopular(pop)"
+            style="background:rgba(13,13,18,0.9);border:1px solid rgba(var(--neon-rgb), 0.2);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.25s;"
+            onmouseenter="this.style.borderColor='rgba(var(--neon-rgb), 0.6)';this.style.boxShadow='0 0 20px rgba(var(--neon-rgb), 0.2)';this.style.transform='translateY(-3px)'"
+            onmouseleave="this.style.borderColor='rgba(var(--neon-rgb), 0.2)';this.style.boxShadow='none';this.style.transform='translateY(0)'">
+            @if (pop.imageUrl) {
+              <img [src]="pop.imageUrl" [alt]="pop.nombre" style="width:100%;height:120px;object-fit:cover;" />
+            } @else {
+              <div style="width:100%;height:120px;display:flex;align-items:center;justify-content:center;font-size:3rem;background:rgba(240,249,255,0.03);">
+                {{ emojiDeCategoria(pop.categoria) }}
+              </div>
+            }
+            <div style="padding:0.7rem;">
+              <p style="font-family:'Nunito',sans-serif;font-weight:800;font-size:0.88rem;color:#f0f9ff;margin:0;">{{ pop.nombre }}</p>
+              @if (pop.descripcion) {
+                <p style="font-size:0.72rem;color:rgba(240,249,255,0.5);margin-top:0.2rem;">{{ pop.descripcion }}</p>
+              }
+              <span style="margin-top:0.5rem;display:inline-block;background:rgba(255,140,0,0.15);color:#ff8c00;font-size:0.75rem;font-weight:700;padding:2px 10px;border-radius:20px;border:1px solid rgba(255,140,0,0.3);">
+                + Agregar
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- PASO 3: ARMAR PEDIDO -->
+    <h2 style="font-family:var(--font-title);font-size:1.2rem;color:#ff2d9b;letter-spacing:0.06em;margin-bottom:1.25rem;">
+      {{ fb.populares().length > 0 ? '3️⃣' : '2️⃣' }} Arma tu pedido
+    </h2>
+
+    <!-- TABS -->
+    <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      @for (cat of categoriasActivas(); track cat.slug) {
+        <button (click)="setTab(cat.slug)"
+          style="flex:1;min-width:80px;padding:0.75rem 0.5rem;border-radius:12px;border:2px solid;font-family:var(--font-title);font-size:1rem;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;"
+          [style.border-color]="tabActivo() === cat.slug ? 'var(--neon)' : 'rgba(240,249,255,0.1)'"
+          [style.background]="tabActivo() === cat.slug ? 'rgba(var(--neon-rgb), 0.12)' : 'rgba(13,13,18,0.8)'"
+          [style.color]="tabActivo() === cat.slug ? 'var(--neon)' : 'rgba(240,249,255,0.5)'"
+          [style.box-shadow]="tabActivo() === cat.slug ? '0 0 16px rgba(var(--neon-rgb), 0.25)' : 'none'">
+          {{ cat.emoji }} {{ cat.nombre | uppercase }}
+        </button>
+      }
+    </div>
+
+    <!-- PRECIOS -->
+    @if (preciosDeTab().length > 0) {
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-size:0.8rem;font-weight:700;color:rgba(240,249,255,0.5);margin-bottom:0.5rem;font-family:'Nunito',sans-serif;text-transform:uppercase;letter-spacing:0.05em;">
+          Tamaño / Presentación
+        </label>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          @for (precio of preciosDeTab(); track precio.id) {
+            <button (click)="selectPrecio(precio)"
+              style="padding:0.6rem 1.2rem;border-radius:10px;border:2px solid;font-family:'Nunito',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;"
+              [style.border-color]="selectedPrecio()?.id === precio.id ? '#ff8c00' : 'rgba(240,249,255,0.12)'"
+              [style.background]="selectedPrecio()?.id === precio.id ? 'rgba(255,140,0,0.15)' : 'rgba(13,13,18,0.8)'"
+              [style.color]="selectedPrecio()?.id === precio.id ? '#ff8c00' : 'rgba(240,249,255,0.6)'"
+              [style.box-shadow]="selectedPrecio()?.id === precio.id ? '0 0 12px rgba(255,140,0,0.25)' : 'none'">
+              {{ precio.label }} — ${{ precio.precio }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- CARNES -->
+    @if (reglas().requiereBase && carnesDeTab().length > 0) {
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-size:0.8rem;font-weight:700;color:rgba(240,249,255,0.5);margin-bottom:0.5rem;font-family:'Nunito',sans-serif;text-transform:uppercase;letter-spacing:0.05em;">
+          {{ reglas().baseLabel ?? brand.labels.base }}
+        </label>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          @for (carne of carnesDeTab(); track carne.id) {
+            <button (click)="selectCarne(carne)"
+              style="padding:0.55rem 1.1rem;border-radius:10px;border:2px solid;font-family:'Nunito',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.4rem;"
+              [style.border-color]="selectedCarne()?.id === carne.id ? '#39ff14' : 'rgba(240,249,255,0.12)'"
+              [style.background]="selectedCarne()?.id === carne.id ? 'rgba(57,255,20,0.1)' : 'rgba(13,13,18,0.8)'"
+              [style.color]="selectedCarne()?.id === carne.id ? '#39ff14' : 'rgba(240,249,255,0.6)'"
+              [style.box-shadow]="selectedCarne()?.id === carne.id ? '0 0 12px rgba(57,255,20,0.2)' : 'none'">
+              {{ carne.emoji }} {{ carne.name }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- INGREDIENTES -->
+    @if (ingredientesDeTab().length > 0) {
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-size:0.8rem;font-weight:700;color:rgba(240,249,255,0.5);margin-bottom:0.5rem;font-family:'Nunito',sans-serif;text-transform:uppercase;letter-spacing:0.05em;">
+          {{ reglas().ingredienteLabel ?? brand.labels.ingredientePlural }}
+          @if (reglas().modoIngredientes === 'quitar') {
+            (desmarca lo que NO quieras)
+          } @else if (limite() > 0) {
+            (elige hasta {{ limite() }} · {{ selectedIngredientes().length }}/{{ limite() }})
+          }
+        </label>
+        @if (reglas().permiteCombinado) {
+          <button type="button" (click)="toggleCombinado()" [attr.aria-pressed]="combinado()"
+            style="margin-bottom:0.6rem;padding:0.45rem 0.9rem;border-radius:20px;border:2px solid;font-family:'Nunito',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;"
+            [style.border-color]="combinado() ? 'var(--neon)' : 'rgba(240,249,255,0.12)'"
+            [style.background]="combinado() ? 'rgba(var(--neon-rgb), 0.15)' : 'rgba(13,13,18,0.8)'"
+            [style.color]="combinado() ? 'var(--neon-light)' : 'rgba(240,249,255,0.6)'">
+            {{ combinado() ? '✓ ' : '' }}Combinado (hasta {{ reglas().maxIngredientesCombinado }})
+          </button>
+        }
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.4rem;">
+          @for (ing of ingredientesDeTab(); track ing.id) {
+            <button (click)="toggleIngrediente(ing.id)"
+              style="padding:0.55rem 0.75rem;border-radius:10px;border:1px solid;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:left;display:flex;align-items:center;gap:0.5rem;"
+              [style.border-color]="isIngredienteSelected(ing.id) ? 'rgba(255,45,155,0.5)' : 'rgba(240,249,255,0.08)'"
+              [style.background]="isIngredienteSelected(ing.id) ? 'rgba(255,45,155,0.1)' : 'rgba(13,13,18,0.5)'"
+              [style.color]="isIngredienteSelected(ing.id) ? '#f0f9ff' : 'rgba(240,249,255,0.3)'">
+              <span>{{ ing.emoji }}</span>
+              <span>{{ ing.name }}</span>
+              @if (isIngredienteSelected(ing.id)) {
+                <span style="margin-left:auto;color:#39ff14;font-size:0.75rem;">✓</span>
+              }
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- CANTIDAD Y NOTAS -->
+    <div style="background:rgba(13,13,18,0.8);border:1px solid rgba(var(--neon-rgb), 0.15);border-radius:14px;padding:1rem;margin-bottom:1.25rem;">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem;">
+        <span style="font-size:0.8rem;font-weight:700;color:rgba(240,249,255,0.5);font-family:'Nunito',sans-serif;text-transform:uppercase;letter-spacing:0.05em;">Cantidad</span>
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <button (click)="cantidad.set(Math.max(1, cantidad() - 1))"
+            style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(var(--neon-rgb), 0.3);background:rgba(var(--neon-rgb), 0.08);color:var(--neon);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">−</button>
+          <span style="font-family:var(--font-title);font-size:1.8rem;color:var(--neon);min-width:2rem;text-align:center;">{{ cantidad() }}</span>
+          <button (click)="cantidad.set(cantidad() + 1)"
+            style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(var(--neon-rgb), 0.3);background:rgba(var(--neon-rgb), 0.08);color:var(--neon);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
+        </div>
+      </div>
+      <textarea [formField]="fd.notas" rows="2" placeholder="📝 Notas especiales (ej: sin cebolla, bien cocida...)"
+        style="width:100%;resize:none;background:rgba(5,5,8,0.6);border:1px solid rgba(var(--neon-rgb), 0.15);border-radius:8px;
+               color:#f0f9ff;font-family:'Nunito',sans-serif;font-size:0.88rem;padding:0.6rem 0.75rem;outline:none;box-sizing:border-box;"></textarea>
+    </div>
+
+    <!-- BOTÓN AGREGAR -->
+    <button (click)="agregarItem()" [disabled]="!puedeAgregar()"
+      style="width:100%;padding:0.9rem;border-radius:12px;border:none;font-family:var(--font-title);font-size:1.1rem;letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;margin-bottom:2rem;
+             background:linear-gradient(135deg,#ff2d9b,var(--neon));"
+      [style.opacity]="puedeAgregar() ? '1' : '0.4'"
+      [style.cursor]="puedeAgregar() ? 'pointer' : 'not-allowed'"
+      [style.box-shadow]="puedeAgregar() ? '0 4px 20px rgba(var(--neon-rgb), 0.25)' : 'none'"
+      [style.color]="'#050508'">
+      + AGREGAR AL PEDIDO
+    </button>
+
+    <!-- CARRITO -->
+    @if (order.items().length > 0) {
+      <div style="margin-bottom:1.5rem;">
+        <h3 style="font-family:var(--font-title);font-size:1.3rem;color:#ff8c00;letter-spacing:0.06em;margin-bottom:0.75rem;">
+          🛒 Tu pedido ({{ order.totalItems() }} items)
+        </h3>
+
+        @for (item of order.items(); track item.id) {
+          <div style="background:rgba(13,13,18,0.9);border:1px solid rgba(255,140,0,0.2);border-radius:12px;padding:0.9rem;margin-bottom:0.6rem;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.75rem;">
+              <div style="flex:1;min-width:0;">
+                <p style="font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95rem;color:#f0f9ff;margin:0;">
+                  {{ emojiDeCategoria(item.categoria) }}
+                  {{ item.categoriaLabel }}
+                  @if (item.tipoCarneName) { <span style="color:#39ff14;"> · {{ item.tipoCarneName }}</span> }
+                  @if (item.combinado) { <span style="color:var(--neon-light);"> · Combinado</span> }
+                  <span style="color:#ff8c00;"> · {{ item.precioLabel }}</span>
+                </p>
+                @if (item.ingredienteNames.length > 0) {
+                  <p style="font-size:0.75rem;color:rgba(240,249,255,0.45);margin-top:0.2rem;">{{ item.ingredienteNames.join(', ') }}</p>
+                }
+                @if (item.notas) {
+                  <p style="font-size:0.75rem;color:rgba(var(--neon-rgb), 0.7);margin-top:0.15rem;">📝 {{ item.notas }}</p>
+                }
+                <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.5rem;">
+                  <button (click)="updateCantidadItem(item.id, -1)"
+                    style="width:26px;height:26px;border-radius:6px;border:1px solid rgba(240,249,255,0.15);background:rgba(240,249,255,0.05);color:rgba(240,249,255,0.6);font-size:1rem;cursor:pointer;">−</button>
+                  <span style="font-family:var(--font-title);font-size:1.2rem;color:#f0f9ff;">{{ item.cantidad }}</span>
+                  <button (click)="updateCantidadItem(item.id, 1)"
+                    style="width:26px;height:26px;border-radius:6px;border:1px solid rgba(240,249,255,0.15);background:rgba(240,249,255,0.05);color:rgba(240,249,255,0.6);font-size:1rem;cursor:pointer;">+</button>
+                </div>
+              </div>
+              <div style="text-align:right;flex-shrink:0;">
+                <p style="font-family:var(--font-title);font-size:1.3rem;color:#ff8c00;margin:0;">${{ item.precio * item.cantidad }}</p>
+                <button (click)="order.removeItem(item.id)"
+                  style="background:none;border:none;color:rgba(255,45,155,0.6);font-size:0.78rem;cursor:pointer;margin-top:0.3rem;">✕ Quitar</button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- TOTAL -->
+        <div style="background:rgba(255,140,0,0.1);border:1px solid rgba(255,140,0,0.3);border-radius:12px;padding:0.9rem;display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;box-shadow:0 0 20px rgba(255,140,0,0.1);">
+          <span style="font-family:var(--font-title);font-size:1.3rem;color:#f0f9ff;letter-spacing:0.05em;">TOTAL</span>
+          <span style="font-family:var(--font-title);font-size:1.8rem;color:#ff8c00;">${{ order.totalPrecio() }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- INFO DE CONTACTO + QR -->
+    <footer style="margin-top:3rem;padding:1.5rem 0 1rem;border-top:1px dashed rgba(var(--neon-rgb), 0.2);text-align:center;">
+      <h3 style="font-family:var(--font-title);font-size:1.2rem;color:var(--neon);letter-spacing:0.06em;margin-bottom:0.75rem;">{{ brand.emoji }} {{ brand.nombre }}</h3>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:center;color:rgba(240,249,255,0.5);font-size:0.88rem;font-family:'Nunito',sans-serif;margin-bottom:1.5rem;">
+        @if (fb.contactInfo().direccion) { <p>📍 {{ fb.contactInfo().direccion }}</p> }
+        @if (fb.contactInfo().telefono)  { <p>📞 {{ fb.contactInfo().telefono }}</p> }
+        @for (linea of brand.horariosExtra; track linea) { <p>{{ linea }}</p> }
+        @if (brand.horariosExtra.length === 0 && (fb.contactInfo().dias || fb.contactInfo().horario)) {
+          <p>🕒 {{ fb.contactInfo().dias }} {{ fb.contactInfo().horario }}</p>
+        }
+      </div>
+
+      <!-- QR -->
+      <div style="display:inline-flex;flex-direction:column;align-items:center;gap:0.75rem;background:rgba(13,13,18,0.8);border:1px solid rgba(var(--neon-rgb), 0.15);border-radius:16px;padding:1.25rem 1.5rem;">
+        <p style="font-size:0.78rem;color:rgba(240,249,255,0.45);font-family:'Nunito',sans-serif;margin:0;">📱 Escanea para abrir el menú en tu celular</p>
+        <img [src]="brand.qrUrl(180, true)"
+          [alt]="'QR ' + brand.nombre"
+          style="width:140px;height:140px;border-radius:10px;border:2px solid rgba(var(--neon-rgb), 0.25);" />
+        <p style="font-size:0.72rem;color:rgba(var(--neon-rgb), 0.5);font-family:'Nunito',sans-serif;margin:0;">{{ brand.shareHost }}</p>
+      </div>
+    </footer>
+  </section>
+
+  <!-- FOOTER STICKY -->
+  <div style="position:fixed;bottom:0;left:0;right:0;background:rgba(5,5,8,0.96);backdrop-filter:blur(14px);border-top:1px solid rgba(var(--neon-rgb), 0.25);padding:0.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;z-index:50;gap:1rem;">
+    <div>
+      <p style="font-size:0.78rem;color:rgba(240,249,255,0.45);font-family:'Nunito',sans-serif;margin:0;">{{ order.totalItems() }} items</p>
+      <p style="font-family:var(--font-title);font-size:1.4rem;color:#f0f9ff;margin:0;">${{ order.totalPrecio() }}</p>
+    </div>
+    <button (click)="enviarPedido()" [disabled]="!pedidoListo || isSending"
+      style="display:flex;align-items:center;gap:0.6rem;background:#25d366;color:white;border:none;padding:0.75rem 1.4rem;border-radius:30px;font-family:'Nunito',sans-serif;font-size:0.95rem;font-weight:800;cursor:pointer;transition:all 0.25s;box-shadow:0 4px 20px rgba(37,211,102,0.3);"
+      [style.opacity]="pedidoListo && !isSending ? '1' : '0.4'"
+      [style.cursor]="pedidoListo ? 'pointer' : 'not-allowed'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.851L.057 23.5l5.797-1.518A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.886 0-3.65-.49-5.183-1.348l-.371-.22-3.44.901.919-3.352-.242-.385A9.942 9.942 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+      </svg>
+      {{ isSending ? 'Enviando...' : 'Pedir por WhatsApp' }}
+    </button>
+  </div>
+
+</div>

@@ -1,0 +1,103 @@
+<div style="
+  min-height: 100vh;
+  background: var(--bg-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+">
+  <!-- Glow de fondo cyan -->
+  <div style="
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(var(--neon-rgb), 0.1) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  "></div>
+  <!-- Glow secundario pink -->
+  <div style="
+    position: absolute;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,45,155,0.07) 0%, transparent 70%);
+    bottom: 10%; right: 10%;
+    pointer-events: none;
+  "></div>
+
+  <!-- Card login -->
+  <div style="
+    background: var(--bg-card);
+    border: 1px solid rgba(var(--neon-rgb), 0.25);
+    border-radius: 18px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 380px;
+    position: relative;
+    box-shadow: 0 0 40px rgba(var(--neon-rgb), 0.1), 0 0 80px rgba(var(--neon-rgb), 0.05);
+  ">
+    <!-- Logo -->
+    <div style="text-align:center; margin-bottom:1.75rem;">
+      @if (fb.logoUrl()) {
+        <img [src]="fb.logoUrl()" [alt]="brand.nombre"
+          style="width:90px; height:90px; object-fit:contain; margin:0 auto 1rem; display:block; border-radius:50%; border:2px solid rgba(var(--neon-rgb), 0.35); padding:4px; background:var(--bg-surface);"
+          class="logo-img" />
+      } @else {
+        <div style="font-size:3rem; margin-bottom:0.75rem; filter:drop-shadow(0 0 16px var(--neon));">{{ brand.emoji }}</div>
+      }
+      <h1 style="font-family:var(--font-title); font-size:1.6rem; letter-spacing:0.1em; color:var(--neon);">
+        Panel ALO
+      </h1>
+      <p style="font-size:0.82rem; color:var(--texto-secondary); margin-top:0.2rem;">
+        Administración · {{ brand.nombre }}
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form (submit)="submit($event)" style="display:flex; flex-direction:column; gap:1.1rem;">
+      <div>
+        <label style="display:block; font-size:0.8rem; color:var(--texto-secondary); margin-bottom:0.35rem; font-weight:700;">
+          Correo electrónico
+        </label>
+        <input type="email" autocomplete="username" [formField]="f.email" [placeholder]="'admin@' + brand.shareHost.replace('.netlify.app', '.com')" />
+      </div>
+
+      <div>
+        <label style="display:block; font-size:0.8rem; color:var(--texto-secondary); margin-bottom:0.35rem; font-weight:700;">
+          Contraseña
+        </label>
+        <input type="password" autocomplete="current-password" [formField]="f.password" placeholder="••••••••" />
+      </div>
+
+      @if (auth.error()) {
+        <div style="
+          background: rgba(255,45,155,0.08);
+          border: 1px solid rgba(255,45,155,0.3);
+          border-radius: 8px;
+          padding: 0.6rem 0.85rem;
+          font-size: 0.85rem;
+          color: var(--neon-pink-light);
+          text-align: center;
+        ">{{ auth.error() }}</div>
+      }
+
+      <button type="submit" [disabled]="f().invalid() || loading()"
+        class="btn-neon"
+        style="
+          margin-top:0.5rem;
+          width:100%;
+          padding:0.85rem;
+          border-radius:10px;
+          font-family:var(--font-title);
+          font-size:1.1rem;
+          letter-spacing:0.07em;
+          transition:all 0.2s;
+        "
+        [style.opacity]="(f().invalid() || loading()) ? '0.5' : '1'"
+      >
+        {{ loading() ? 'Entrando...' : 'Entrar al panel' }}
+      </button>
+    </form>
+  </div>
+</div>

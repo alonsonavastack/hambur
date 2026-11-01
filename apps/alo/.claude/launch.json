@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "alo-fresas",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:fresas", "--", "--port", "4201"],
+      "port": 4201
+    },
+    {
+      "name": "alo-hamburguesas",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:hamburguesas", "--", "--port", "4202"],
+      "port": 4202
+    }
+  ]
+}

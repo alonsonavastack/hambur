@@ -1,0 +1,118 @@
+<div>
+  <h1 style="font-family:var(--font-title); font-size:1.8rem; letter-spacing:0.07em; color:var(--neon); margin-bottom:0.25rem;">Dashboard</h1>
+  <p style="color:var(--texto-secondary); font-size:0.9rem; margin-bottom:2rem;">Resumen del negocio · {{ brand.nombre }} 🍔</p>
+
+  <!-- ── MÉTRICAS DE HOY ──────────────────────────────────────────── -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1rem; margin-bottom:2rem;">
+
+    <div class="card-base" style="padding:1.25rem; text-align:center;">
+      <p style="font-size:1.8rem; margin-bottom:0.25rem;">📋</p>
+      <p style="font-family:var(--font-title); font-size:2rem; color:var(--neon); line-height:1;">{{ pedidosHoy() }}</p>
+      <p style="font-size:0.75rem; color:var(--texto-secondary);">Pedidos hoy</p>
+    </div>
+
+    <div class="card-base" style="padding:1.25rem; text-align:center;">
+      <p style="font-size:1.8rem; margin-bottom:0.25rem;">💰</p>
+      <p style="font-family:var(--font-title); font-size:2rem; color:var(--neon-orange); line-height:1;">${{ ingresoHoy() }}</p>
+      <p style="font-size:0.75rem; color:var(--texto-secondary);">Ingreso hoy</p>
+    </div>
+
+    <div class="card-base" style="padding:1.25rem; text-align:center; border-color:{{ pedidosPendientes() > 0 ? 'rgba(255,140,0,0.4)' : '' }}">
+      <p style="font-size:1.8rem; margin-bottom:0.25rem;">⏳</p>
+      <p style="font-family:var(--font-title); font-size:2rem; color:var(--neon-orange); line-height:1;">{{ pedidosPendientes() }}</p>
+      <p style="font-size:0.75rem; color:var(--texto-secondary);">Pendientes</p>
+    </div>
+
+    <div class="card-base" style="padding:1.25rem; text-align:center;">
+      <p style="font-size:1.8rem; margin-bottom:0.25rem;">📊</p>
+      <p style="font-family:var(--font-title); font-size:2rem; color:var(--neon-green); line-height:1;">{{ totalPedidos() }}</p>
+      <p style="font-size:0.75rem; color:var(--texto-secondary);">Total pedidos</p>
+    </div>
+  </div>
+
+  <!-- ── CATÁLOGO ─────────────────────────────────────────────────── -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:0.75rem; margin-bottom:2rem;">
+    <div style="padding:1rem; background:var(--bg-card); border-radius:10px; border:1px solid rgba(var(--neon-rgb), 0.15); text-align:center;">
+      <p style="font-size:1.4rem;">🥗</p>
+      <p style="font-weight:800; font-size:1.3rem; color:var(--neon-green);">{{ activeIngredientes() }}<span style="font-size:0.75rem; color:var(--texto-muted);">/{{ totalIngredientes() }}</span></p>
+      <p style="font-size:0.7rem; color:var(--texto-muted);">Ingredientes</p>
+    </div>
+    <div style="padding:1rem; background:var(--bg-card); border-radius:10px; border:1px solid rgba(255,45,155,0.15); text-align:center;">
+      <p style="font-size:1.4rem;">🥩</p>
+      <p style="font-weight:800; font-size:1.3rem; color:var(--neon-pink);">{{ totalCarnes() }}</p>
+      <p style="font-size:0.7rem; color:var(--texto-muted);">Carnes</p>
+    </div>
+    <div style="padding:1rem; background:var(--bg-card); border-radius:10px; border:1px solid rgba(255,140,0,0.15); text-align:center;">
+      <p style="font-size:1.4rem;">💰</p>
+      <p style="font-weight:800; font-size:1.3rem; color:var(--neon-orange);">{{ totalPrecios() }}</p>
+      <p style="font-size:0.7rem; color:var(--texto-muted);">Precios</p>
+    </div>
+    <div style="padding:1rem; background:var(--bg-card); border-radius:10px; border:1px solid rgba(var(--neon-rgb), 0.15); text-align:center;">
+      <p style="font-size:1.4rem;">⭐</p>
+      <p style="font-weight:800; font-size:1.3rem; color:var(--neon);">{{ totalPopulares() }}</p>
+      <p style="font-size:0.7rem; color:var(--texto-muted);">Populares</p>
+    </div>
+  </div>
+
+  <!-- ── LOGO DEL NEGOCIO ─────────────────────────────────────────── -->
+  <div style="background:var(--bg-card); border:1px solid rgba(var(--neon-rgb), 0.2); border-radius:14px; padding:1.5rem; margin-bottom:2rem; max-width:700px;">
+    <h2 style="font-family:var(--font-title); font-size:1.1rem; letter-spacing:0.07em; color:var(--neon); margin-bottom:1.25rem;">🖼️ Logo del negocio</h2>
+    <div style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
+      <div style="flex-shrink:0;">
+        @if (logoUrl()) {
+          <img [src]="logoUrl()" alt="Logo actual"
+            style="width:100px; height:100px; object-fit:contain; border-radius:12px; border:2px solid rgba(var(--neon-rgb), 0.3); background:var(--bg-surface); padding:6px;" class="logo-img" />
+        } @else {
+          <div style="width:100px; height:100px; border-radius:12px; border:2px dashed rgba(var(--neon-rgb), 0.25); background:var(--bg-surface); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:0.25rem;">
+            <span style="font-size:2rem; filter:drop-shadow(0 0 8px var(--neon))">{{ brand.emoji }}</span>
+            <span style="font-size:0.65rem; color:var(--texto-muted);">Sin logo</span>
+          </div>
+        }
+      </div>
+      <div style="flex:1; min-width:220px;">
+        <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
+          <button type="button" (click)="logoMode.set('url')"
+            [style.background]="logoMode() === 'url' ? 'linear-gradient(135deg,var(--neon-dark),var(--neon))' : 'var(--bg-surface)'"
+            [style.borderColor]="logoMode() === 'url' ? 'var(--neon)' : 'rgba(var(--neon-rgb), 0.2)'"
+            style="border:1px solid; border-radius:7px; padding:0.3rem 0.8rem; color:var(--texto-primary); cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.8rem; font-weight:600;">
+            🔗 URL
+          </button>
+          <button type="button" (click)="logoMode.set('file')"
+            [style.background]="logoMode() === 'file' ? 'linear-gradient(135deg,var(--neon-dark),var(--neon))' : 'var(--bg-surface)'"
+            [style.borderColor]="logoMode() === 'file' ? 'var(--neon)' : 'rgba(var(--neon-rgb), 0.2)'"
+            style="border:1px solid; border-radius:7px; padding:0.3rem 0.8rem; color:var(--texto-primary); cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.8rem; font-weight:600;">
+            📁 Archivo
+          </button>
+        </div>
+
+        @if (logoMode() === 'url') {
+          <div style="display:flex; gap:0.5rem;">
+            <input type="url" placeholder="https://..." [value]="logoUrlInput()" (input)="onLogoUrlInput($event)"
+              style="flex:1; font-size:0.85rem;" />
+            <button type="button" (click)="saveLogoUrl()" [disabled]="!logoUrlInput()"
+              style="padding:0.4rem 0.9rem; border-radius:8px; background:linear-gradient(135deg,var(--neon-dark),var(--neon)); color:#050508; border:none; font-weight:800; cursor:pointer; font-size:0.85rem; white-space:nowrap; font-family:'Nunito',sans-serif;">
+              Guardar
+            </button>
+          </div>
+        } @else {
+          <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; padding:0.5rem 0.75rem; border:1px dashed rgba(var(--neon-rgb), 0.3); border-radius:8px; background:var(--bg-surface);">
+            <span style="font-size:0.85rem; color:var(--texto-secondary);">
+              {{ uploadingLogo() ? '⏳ Subiendo...' : '📁 Seleccionar imagen' }}
+            </span>
+            <input type="file" accept="image/*" (change)="onLogoFile($event)" [disabled]="uploadingLogo()" style="display:none;" />
+          </label>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ── QR ────────────────────────────────────────────────────────── -->
+  <div style="background:var(--bg-card); border:1px solid rgba(var(--neon-rgb), 0.15); border-radius:14px; padding:1.5rem; max-width:700px;">
+    <h2 style="font-family:var(--font-title); font-size:1.1rem; letter-spacing:0.07em; color:var(--neon); margin-bottom:0.75rem;">📲 Código QR</h2>
+    <p style="font-size:0.85rem; color:var(--texto-secondary); margin-bottom:1rem;">Descarga el QR para que tus clientes accedan al menú desde su celular.</p>
+    <button type="button" (click)="exportQR()"
+      style="padding:0.6rem 1.25rem; border-radius:8px; background:linear-gradient(135deg,var(--neon-dark),var(--neon)); color:#050508; border:none; font-weight:800; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.9rem;">
+      ⬇️ Descargar QR
+    </button>
+  </div>
+</div>

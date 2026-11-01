@@ -1,0 +1,118 @@
+<div>
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+    <div>
+      <h1 style="font-family:var(--font-title); font-size:2rem; letter-spacing:0.07em; color:var(--neon-orange); margin-bottom:0.25rem;">💰 Precios</h1>
+      <p style="color:var(--texto-secondary); font-size:0.85rem; margin-top:0.2rem; font-family:'Nunito',sans-serif;">{{ items().length }} precio(s) configurado(s)</p>
+    </div>
+    <button (click)="openCreate()" class="btn-neon-orange"
+      style="padding:0.6rem 1.25rem; border-radius:10px; font-family:'Nunito',sans-serif; font-size:0.9rem; font-weight:700;">
+      + Nuevo precio
+    </button>
+  </div>
+
+  <app-categoria-filtro [categorias]="categorias()" [(value)]="filtro" />
+
+  <div style="background:var(--bg-card); border:1px solid rgba(255,140,0,0.2); border-radius:14px; overflow:hidden;">
+    @if (items().length === 0) {
+      <div style="padding:3rem; text-align:center; color:var(--texto-muted); font-family:'Nunito',sans-serif;">Sin precios registrados</div>
+    } @else {
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,140,0,0.15); background:var(--bg-surface);">
+            <th style="padding:0.75rem 1rem; text-align:left; font-size:0.8rem; color:var(--texto-secondary); font-weight:700; font-family:'Nunito',sans-serif;">Categoría</th>
+            <th style="padding:0.75rem 1rem; text-align:left; font-size:0.8rem; color:var(--texto-secondary); font-weight:700; font-family:'Nunito',sans-serif;">Tamaño / Etiqueta</th>
+            <th style="padding:0.75rem 1rem; text-align:left; font-size:0.8rem; color:var(--texto-secondary); font-weight:700; font-family:'Nunito',sans-serif;">Precio</th>
+            <th style="padding:0.75rem 1rem; text-align:left; font-size:0.8rem; color:var(--texto-secondary); font-weight:700; font-family:'Nunito',sans-serif;">Estado</th>
+            <th style="padding:0.75rem 1rem; text-align:right; font-size:0.8rem; color:var(--texto-secondary); font-weight:700; font-family:'Nunito',sans-serif;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items(); track item.id) {
+            <tr style="border-bottom:1px solid rgba(255,140,0,0.08); transition:background 0.15s;"
+              onmouseenter="this.style.background='rgba(255,140,0,0.04)'"
+              onmouseleave="this.style.background='transparent'">
+              <td style="padding:0.75rem 1rem; font-size:0.85rem; color:var(--texto-secondary); font-family:'Nunito',sans-serif;">{{ categoriaLabel(item.categoria) }}</td>
+              <td style="padding:0.75rem 1rem; font-weight:700; color:var(--texto-primary); font-size:0.95rem; font-family:'Nunito',sans-serif;">{{ item.label }}</td>
+              <td style="padding:0.75rem 1rem;">
+                <span style="font-family:var(--font-title); font-size:1.2rem; font-weight:700; color:var(--neon-orange);">${{ item.precio }}</span>
+              </td>
+              <td style="padding:0.75rem 1rem;">
+                <span [style.background]="item.available ? 'rgba(57,255,20,0.12)' : 'rgba(239,68,68,0.12)'"
+                  [style.color]="item.available ? 'var(--neon-green)' : '#f87171'"
+                  style="font-size:0.72rem; font-weight:700; padding:2px 10px; border-radius:20px; font-family:'Nunito',sans-serif;">
+                  {{ item.available ? '✅ Activo' : '❌ Inactivo' }}
+                </span>
+              </td>
+              <td style="padding:0.75rem 1rem; text-align:right;">
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                  <button (click)="openEdit(item)"
+                    style="background:rgba(255,140,0,0.12); border:1px solid rgba(255,140,0,0.3); color:var(--neon-orange); padding:0.35rem 0.75rem; border-radius:8px; cursor:pointer; font-size:0.8rem; font-family:'Nunito',sans-serif; font-weight:700; transition:all 0.15s;"
+                    onmouseenter="this.style.background='rgba(255,140,0,0.25)'"
+                    onmouseleave="this.style.background='rgba(255,140,0,0.12)'">Editar</button>
+                  <button (click)="delete(item)"
+                    style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3); color:#f87171; padding:0.35rem 0.75rem; border-radius:8px; cursor:pointer; font-size:0.8rem; font-family:'Nunito',sans-serif; font-weight:700; transition:all 0.15s;"
+                    onmouseenter="this.style.background='rgba(239,68,68,0.2)'"
+                    onmouseleave="this.style.background='rgba(239,68,68,0.08)'">Eliminar</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>
+
+@if (modalOpen()) {
+  <div style="position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:100; display:flex; align-items:center; justify-content:center; padding:1rem;" (click)="closeModal()">
+    <div style="background:var(--bg-card); border:1px solid rgba(255,140,0,0.35); border-radius:16px; padding:2rem; width:100%; max-width:400px; box-shadow:0 0 40px rgba(255,140,0,0.15);"
+      (click)="$event.stopPropagation()">
+      <h2 style="font-family:var(--font-title); font-size:1.6rem; letter-spacing:0.07em; color:var(--neon-orange); margin-bottom:1.5rem;">
+        {{ editingItem() ? '✏️ Editar Precio' : '+ Nuevo Precio' }}
+      </h2>
+      <form (submit)="onSubmit($event)" style="display:flex; flex-direction:column; gap:1rem;">
+
+        <!-- Categoría dinámica desde Firestore -->
+        <div>
+          <label style="display:block; font-size:0.85rem; color:var(--texto-secondary); margin-bottom:0.35rem; font-weight:700; font-family:'Nunito',sans-serif;">
+            Categoría *
+          </label>
+          <select [formField]="f.categoria" style="width:100%; font-family:'Nunito',sans-serif;">
+            @for (cat of categorias(); track cat.slug) {
+              <option [value]="cat.slug">{{ cat.emoji }} {{ cat.nombre }}</option>
+            }
+          </select>
+          @if (categorias().length === 0) {
+            <p style="font-size:0.75rem; color:#f87171; margin-top:0.3rem; font-family:'Nunito',sans-serif;">
+              No hay categorías creadas. Ve a <strong>Catálogo → Categorías</strong> y crea una primero.
+            </p>
+          }
+        </div>
+
+        <div>
+          <label style="display:block; font-size:0.85rem; color:var(--texto-secondary); margin-bottom:0.35rem; font-weight:700; font-family:'Nunito',sans-serif;">Tamaño / Etiqueta *</label>
+          <input type="text" [formField]="f.label" placeholder='Ej: Chica, Grande, Unitario...' style="font-family:'Nunito',sans-serif;" />
+        </div>
+        <div>
+          <label style="display:block; font-size:0.85rem; color:var(--texto-secondary); margin-bottom:0.35rem; font-weight:700; font-family:'Nunito',sans-serif;">Precio (MXN) *</label>
+          <input type="number" [formField]="f.precio" placeholder="65" style="font-family:'Nunito',sans-serif;" />
+        </div>
+        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem; color:var(--texto-primary); font-weight:700; font-family:'Nunito',sans-serif;">
+          <input type="checkbox" [formField]="f.available" style="width:16px; height:16px; accent-color:var(--neon-orange);" />
+          Activo / Disponible
+        </label>
+        <div style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.5rem;">
+          <button type="button" (click)="closeModal()"
+            style="padding:0.6rem 1.2rem; background:var(--bg-surface); border:1px solid rgba(255,140,0,0.2); border-radius:9px; color:var(--texto-secondary); cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.9rem; font-weight:700;">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="f().invalid() || saving() || categorias().length === 0" class="btn-neon-orange"
+            style="padding:0.6rem 1.4rem; border-radius:9px; font-family:'Nunito',sans-serif; font-size:0.9rem; font-weight:700;"
+            [style.opacity]="(f().invalid() || saving() || categorias().length === 0) ? '0.5' : '1'">
+            {{ saving() ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

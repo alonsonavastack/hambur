@@ -1,0 +1,232 @@
+<div>
+  <h1 style="font-family:var(--font-title); font-size:2rem; letter-spacing:0.07em; color:var(--neon); margin-bottom:0.25rem;">📋 Pedidos</h1>
+  <p style="color:var(--texto-secondary); font-size:0.9rem; margin-bottom:2rem;">Gestión de pedidos · {{ brand.nombre }} 🍔</p>
+
+  <!-- RESUMEN -->
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; max-width:700px; margin-bottom:2rem;">
+    <div class="card-base" style="padding:1.25rem; text-align:center;">
+      <div style="font-size:1.6rem; margin-bottom:0.3rem;">📦</div>
+      <div style="font-family:var(--font-title); font-size:2rem; color:var(--neon);">{{ totalFiltrados() }}</div>
+      <div style="font-size:0.78rem; color:var(--texto-muted);">Pedidos</div>
+    </div>
+    <div class="card-base" style="padding:1.25rem; text-align:center;">
+      <div style="font-size:1.6rem; margin-bottom:0.3rem;">💰</div>
+      <div style="font-family:var(--font-title); font-size:2rem; color:var(--neon-orange);">${{ totalIngresos() }}</div>
+      <div style="font-size:0.78rem; color:var(--texto-muted);">Total (sin cancelados)</div>
+    </div>
+    <div class="card-base" style="padding:1.25rem; text-align:center;">
+      <div style="font-size:1.6rem; margin-bottom:0.3rem;">{{ brand.emoji }}</div>
+      <div style="font-family:var(--font-title); font-size:2rem; color:var(--neon-green);">${{ promedio() }}</div>
+      <div style="font-size:0.78rem; color:var(--texto-muted);">Promedio</div>
+    </div>
+  </div>
+
+  <!-- FILTRO POR STATUS -->
+  <div style="display:flex; gap:0.5rem; flex-wrap:wrap; max-width:760px; margin-bottom:1rem;">
+    <button type="button" (click)="filtroStatus.set('todos')"
+      [style.background]="filtroStatus() === 'todos' ? 'linear-gradient(135deg,var(--neon-dark),var(--neon))' : 'var(--bg-surface)'"
+      [style.borderColor]="filtroStatus() === 'todos' ? 'var(--neon)' : 'rgba(var(--neon-rgb), 0.2)'"
+      style="border:1px solid; border-radius:20px; padding:0.35rem 0.9rem; color:var(--texto-primary); cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.8rem; font-weight:700; display:flex; align-items:center; gap:0.4rem;">
+      Todos
+      <span style="background:rgba(255,255,255,0.12); border-radius:10px; padding:0 6px; font-size:0.72rem;">{{ countByStatus('todos') }}</span>
+    </button>
+    @for (s of statusOrder; track s) {
+      <button type="button" (click)="filtroStatus.set(s)"
+        [style.background]="filtroStatus() === s ? statusConfig[s].bg : 'var(--bg-surface)'"
+        [style.borderColor]="filtroStatus() === s ? statusConfig[s].color : 'rgba(var(--neon-rgb), 0.2)'"
+        [style.color]="filtroStatus() === s ? statusConfig[s].color : 'var(--texto-secondary)'"
+        style="border:1px solid; border-radius:20px; padding:0.35rem 0.9rem; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.8rem; font-weight:700; display:flex; align-items:center; gap:0.4rem; transition:all 0.15s;">
+        {{ statusConfig[s].emoji }} {{ statusConfig[s].label }}
+        <span style="background:rgba(255,255,255,0.1); border-radius:10px; padding:0 6px; font-size:0.72rem;">{{ countByStatus(s) }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- BÚSQUEDA + FECHA -->
+  <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center; max-width:760px; margin-bottom:1.5rem;">
+    <div style="flex:1; min-width:160px; position:relative;">
+      <span style="position:absolute; left:0.75rem; top:50%; transform:translateY(-50%); font-size:0.85rem; pointer-events:none;">🔍</span>
+      <input type="text" [value]="busqueda()" (input)="onBusqueda($event)" placeholder="Buscar cliente..."
+        style="padding:0.5rem 0.75rem 0.5rem 2.1rem; font-size:0.85rem; border-radius:9px;" />
+    </div>
+    <div style="display:flex; gap:0.4rem;">
+      @for (opt of [['todos','Todos'],['hoy','Hoy'],['semana','7 días']]; track opt[0]) {
+        <button type="button" (click)="setFiltroFecha(opt[0])"
+          [style.background]="filtroFecha() === opt[0] ? 'linear-gradient(135deg,var(--neon-dark),var(--neon))' : 'var(--bg-surface)'"
+          [style.borderColor]="filtroFecha() === opt[0] ? 'var(--neon)' : 'rgba(var(--neon-rgb), 0.2)'"
+          style="border:1px solid; border-radius:8px; padding:0.4rem 0.85rem; color:var(--texto-primary); cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.8rem; font-weight:700;">
+          {{ opt[1] }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- LISTA DE PEDIDOS -->
+  <div style="max-width:760px;">
+    @if (pedidosFiltrados().length === 0) {
+      <div class="card-base" style="padding:3rem; text-align:center;">
+        <div style="font-size:2.5rem; margin-bottom:0.75rem;">{{ brand.emoji }}</div>
+        <p style="color:var(--texto-muted); font-size:0.9rem;">
+          {{ busqueda() || filtroFecha() !== 'todos' || filtroStatus() !== 'todos'
+              ? 'No hay pedidos con ese filtro.'
+              : 'Aún no hay pedidos registrados.' }}
+        </p>
+      </div>
+    } @else {
+      <div style="display:flex; flex-direction:column; gap:0.6rem;">
+        @for (pedido of pedidosFiltrados(); track pedido.id) {
+          <div style="background:var(--bg-card); border-radius:12px; overflow:hidden; transition:all 0.2s;"
+            [style.border]="'1px solid ' + getStatusCfg(pedido.status).color + '44'"
+            [style.opacity]="pedido.status === 'cancelado' ? '0.7' : '1'">
+
+            <!-- Cabecera -->
+            <div (click)="togglePedido(pedido.id)"
+              style="display:flex; align-items:center; justify-content:space-between; padding:0.85rem 1rem; cursor:pointer; gap:1rem; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:0.75rem; flex:1; min-width:0;">
+                <div style="width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.1rem;"
+                  [style.background]="getStatusCfg(pedido.status).bg"
+                  [style.border]="'2px solid ' + getStatusCfg(pedido.status).color + '88'">
+                  {{ getStatusCfg(pedido.status).emoji }}
+                </div>
+                <div style="min-width:0;">
+                  <p style="font-weight:700; color:var(--texto-primary); font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                    [style.text-decoration]="pedido.status === 'cancelado' ? 'line-through' : 'none'">
+                    {{ pedido.nombreCliente }}
+                  </p>
+                  @if (pedido.telefonoCliente && pedido.telefonoCliente !== 'N/A') {
+                    <p style="font-size:0.73rem; color:var(--texto-muted); margin-top:0.2rem;">📱 {{ pedido.telefonoCliente }}</p>
+                  }
+                  <p style="font-size:0.73rem; color:var(--texto-muted); margin-top:0.1rem;">
+                    {{ formatFecha(pedido.timestamp) }}
+                    @if (pedido.tipo === 'mostrador') {
+                      <span style="margin-left:0.5rem; background:rgba(var(--neon-rgb), 0.12); color:var(--neon); font-size:0.65rem; padding:1px 6px; border-radius:10px; font-weight:800;">MOSTRADOR</span>
+                    }
+                    @if (pedido.id.startsWith('local_')) {
+                      <span style="margin-left:0.5rem; background:rgba(255,140,0,0.15); color:var(--neon-orange); font-size:0.65rem; padding:1px 6px; border-radius:10px; font-weight:800;">📴 LOCAL</span>
+                    }
+                  </p>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.75rem; flex-shrink:0;">
+                <span style="font-size:0.72rem; font-weight:700; border-radius:20px; padding:3px 10px; white-space:nowrap;"
+                  [style.background]="getStatusCfg(pedido.status).bg"
+                  [style.color]="getStatusCfg(pedido.status).color">
+                  {{ getStatusCfg(pedido.status).label }}
+                </span>
+                <div style="text-align:right;">
+                  <p style="font-family:var(--font-title); font-size:1.2rem; color:var(--neon-orange);"
+                    [style.text-decoration]="pedido.status === 'cancelado' ? 'line-through' : 'none'">
+                    ${{ pedido.totalPrecio }}
+                  </p>
+                  <p style="font-size:0.7rem; color:var(--texto-muted);">{{ pedido.totalItems }} item{{ pedido.totalItems === 1 ? '' : 's' }}</p>
+                </div>
+                <span style="color:var(--texto-muted); font-size:0.85rem; transition:transform 0.2s; display:inline-block;"
+                  [style.transform]="pedidoAbierto() === pedido.id ? 'rotate(180deg)' : 'rotate(0)'">▾</span>
+              </div>
+            </div>
+
+            <!-- Detalle expandible -->
+            @if (pedidoAbierto() === pedido.id) {
+              <div style="border-top:1px solid rgba(var(--neon-rgb), 0.12); padding:0.85rem 1rem; background:rgba(0,0,0,0.2);">
+
+                <!-- Items del pedido -->
+                @for (item of pedido.items; track item.id; let i = $index) {
+                  <div style="margin-bottom:0.75rem; padding-bottom:0.75rem; border-bottom:1px solid rgba(var(--neon-rgb), 0.1);">
+                    <p style="font-size:0.85rem; font-weight:700; color:var(--neon); margin-bottom:0.3rem;">
+                      @if (item.categoriaEmoji) { {{ item.categoriaEmoji }} }
+                      @else {
+                        @switch (item.categoria) {
+                          @case ('hotdog')      { 🌭 }
+                          @case ('hamburguesa') { 🍔 }
+                          @case ('taco')        { 🌮 }
+                        }
+                      }
+                      {{ item.categoriaLabel }}
+                      @if (item.tipoCarneName) { ({{ item.tipoCarneName }}) }
+                      @if (item.combinado) { · Combinado }
+                      · x{{ item.cantidad }}
+                    </p>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.2rem 1rem; font-size:0.78rem; color:var(--texto-secondary);">
+                      <span>💰 Precio: <strong style="color:var(--neon-orange);">${{ item.precio * item.cantidad }}</strong></span>
+                      <span>📏 Tamaño: <strong style="color:var(--texto-primary);">{{ item.precioLabel }}</strong></span>
+                    </div>
+                    @if (item.ingredienteNames.length > 0) {
+                      <p style="font-size:0.75rem; color:var(--texto-muted); margin-top:0.35rem;">
+                        🥗 {{ item.ingredienteNames.join(', ') }}
+                      </p>
+                    }
+                    @if (item.notas) {
+                      <p style="font-size:0.75rem; color:var(--neon-orange); margin-top:0.25rem;">📝 {{ item.notas }}</p>
+                    }
+                  </div>
+                }
+
+                <!-- Total del pedido -->
+                <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--texto-secondary); margin-bottom:1rem; padding-top:0.25rem;">
+                  <span style="font-weight:700;">Total del pedido:</span>
+                  <span style="font-family:var(--font-title); font-weight:700; color:var(--neon-orange); font-size:1.1rem;">${{ pedido.totalPrecio }}</span>
+                </div>
+
+                <!-- CAMBIAR ESTADO -->
+                <div style="border-top:1px solid rgba(var(--neon-rgb), 0.12); padding-top:0.85rem;">
+                  <p style="font-size:0.75rem; color:var(--texto-muted); margin-bottom:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">Cambiar estado</p>
+
+                  <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.6rem;">
+                    @for (s of statusProgreso; track s) {
+                      <button type="button"
+                        (click)="cambiarStatus(pedido.id, s)"
+                        [disabled]="updatingId() === pedido.id || (pedido.status ?? 'pendiente') === s"
+                        [style.background]="(pedido.status ?? 'pendiente') === s ? statusConfig[s].bg : 'var(--bg-surface)'"
+                        [style.borderColor]="(pedido.status ?? 'pendiente') === s ? statusConfig[s].color : 'rgba(var(--neon-rgb), 0.15)'"
+                        [style.color]="(pedido.status ?? 'pendiente') === s ? statusConfig[s].color : 'var(--texto-muted)'"
+                        [style.opacity]="updatingId() === pedido.id && (pedido.status ?? 'pendiente') !== s ? '0.5' : '1'"
+                        style="border:1px solid; border-radius:20px; padding:0.3rem 0.75rem; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.75rem; font-weight:700; transition:all 0.15s; white-space:nowrap;">
+                        {{ statusConfig[s].emoji }} {{ statusConfig[s].label }}
+                      </button>
+                    }
+                  </div>
+
+                  @if ((pedido.status ?? 'pendiente') !== 'cancelado' && (pedido.status ?? 'pendiente') !== 'entregado') {
+                    <button type="button"
+                      (click)="cambiarStatus(pedido.id, 'cancelado')"
+                      [disabled]="updatingId() === pedido.id"
+                      style="border:1px solid rgba(248,113,113,0.5); border-radius:20px; padding:0.3rem 1rem; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.75rem; font-weight:700; transition:all 0.15s; white-space:nowrap; background:rgba(248,113,113,0.08); color:#f87171;"
+                      onmouseenter="this.style.background='rgba(248,113,113,0.2)'"
+                      onmouseleave="this.style.background='rgba(248,113,113,0.08)'">
+                      ❌ Cancelar pedido
+                    </button>
+                  }
+
+                  @if ((pedido.status ?? 'pendiente') === 'cancelado') {
+                    <button type="button"
+                      (click)="cambiarStatus(pedido.id, 'pendiente')"
+                      [disabled]="updatingId() === pedido.id"
+                      style="border:1px solid rgba(var(--neon-rgb), 0.5); border-radius:20px; padding:0.3rem 1rem; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.75rem; font-weight:700; transition:all 0.15s; white-space:nowrap; background:rgba(var(--neon-rgb), 0.08); color:var(--neon);"
+                      onmouseenter="this.style.background='rgba(var(--neon-rgb), 0.2)'"
+                      onmouseleave="this.style.background='rgba(var(--neon-rgb), 0.08)'">
+                      ↩️ Reactivar pedido
+                    </button>
+                  }
+
+                  @if (auth.userRole() === 'admin') {
+                    <button (click)="eliminarPedido(pedido.id)"
+                      [disabled]="updatingId() === pedido.id"
+                      style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; padding:0.4rem 1rem; border-radius:20px; font-size:0.75rem; font-weight:700; cursor:pointer; transition:all 0.2s; margin-left:0.4rem; font-family:'Nunito',sans-serif;"
+                      onmouseenter="this.style.background='rgba(239,68,68,0.2)'"
+                      onmouseleave="this.style.background='rgba(239,68,68,0.1)'">
+                      🗑️ Eliminar permanentemente
+                    </button>
+                  }
+
+                  @if (updatingId() === pedido.id) {
+                    <p style="font-size:0.72rem; color:var(--neon); margin-top:0.4rem;">⏳ Actualizando...</p>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

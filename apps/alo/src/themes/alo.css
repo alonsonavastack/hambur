@@ -1,0 +1,21 @@
+/* Tema Hamburguesas ALO — neón azul sobre negro */
+:root {
+  --neon:       #00d4ff;
+  --neon-light: #67e8f9;
+  --neon-dark:  #0891b2;
+  --neon-rgb:   0, 212, 255;
+  --neon-glow:  rgba(var(--neon-rgb), 0.4);
+  --on-neon:    #050508;
+
+  --bg-base:    #050508;
+  --bg-card:    #0d0d12;
+  --bg-surface: #14141c;
+  --glass-bg:   rgba(13, 13, 18, 0.75);
+
+  --texto-primary:   #f0f9ff;
+  --texto-secondary: rgba(240, 249, 255, 0.6);
+  --texto-muted:     rgba(240, 249, 255, 0.35);
+
+  --font-title: 'Bebas Neue', sans-serif;
+  --title-spacing: 0.05em;
+}

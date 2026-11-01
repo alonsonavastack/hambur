@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+:root {
+  /* Acentos semánticos compartidos (los usan clases utilitarias) */
+  --neon-blue:        #00d4ff;
+  --neon-blue-glow:   rgba(0, 212, 255, 0.4);
+  --neon-green:       #39ff14;
+  --neon-green-dark:  #16a34a;
+  --neon-green-glow:  rgba(57, 255, 20, 0.35);
+  --neon-pink:        #ff2d9b;
+  --neon-pink-light:  #f9a8d4;
+  --neon-pink-glow:   rgba(255, 45, 155, 0.35);
+  --neon-orange:      #ff8c00;
+  --neon-orange-glow: rgba(255, 140, 0, 0.35);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'Nunito', sans-serif;
+  background-color: var(--bg-base);
+  color: var(--texto-primary);
+  min-height: 100vh;
+}
+
+h1, h2, h3, .font-title, .font-bebas, .font-cinzel {
+  font-family: var(--font-title);
+  letter-spacing: var(--title-spacing);
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes neonPulse {
+  0%, 100% { filter: drop-shadow(0 0 12px var(--neon)) drop-shadow(0 0 24px var(--neon-dark)); }
+  50%       { filter: drop-shadow(0 0 28px var(--neon-light)) drop-shadow(0 0 56px var(--neon)); }
+}
+
+.logo-img { animation: neonPulse 3s ease-in-out infinite; }
+
+.neon-border        { border: 1px solid rgba(var(--neon-rgb), 0.3); }
+.neon-border-orange { border: 1px solid rgba(255, 140, 0, 0.3); }
+.neon-glow          { box-shadow: 0 0 20px var(--neon-glow), 0 0 40px rgba(var(--neon-rgb), 0.15); }
+.neon-glow-orange   { box-shadow: 0 0 20px var(--neon-orange-glow), 0 0 40px rgba(255,140,0,0.15); }
+.neon-glow-pink     { box-shadow: 0 0 20px var(--neon-pink-glow), 0 0 40px rgba(255,45,155,0.15); }
+.neon-glow-green    { box-shadow: 0 0 20px var(--neon-green-glow), 0 0 40px rgba(57,255,20,0.15); }
+
+.text-neon        { color: var(--neon); }
+.text-neon-blue   { color: var(--neon-blue); }
+.text-neon-green  { color: var(--neon-green); }
+.text-neon-pink   { color: var(--neon-pink); }
+.text-neon-orange { color: var(--neon-orange); }
+
+.btn-neon {
+  background: linear-gradient(135deg, var(--neon-dark), var(--neon));
+  color: var(--on-neon); font-weight: 700; border: none; cursor: pointer; transition: all 0.2s;
+}
+.btn-neon:hover { box-shadow: 0 0 24px var(--neon-glow); transform: translateY(-1px); }
+.btn-neon:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-neon-orange {
+  background: linear-gradient(135deg, #b85c00, var(--neon-orange));
+  color: #050508; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s;
+}
+.btn-neon-orange:hover { box-shadow: 0 0 24px var(--neon-orange-glow); transform: translateY(-1px); }
+.btn-neon-orange:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.btn-neon-pink {
+  background: linear-gradient(135deg, #8b0050, var(--neon-pink));
+  color: white; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s;
+}
+.btn-neon-pink:hover { box-shadow: 0 0 24px var(--neon-pink-glow); transform: translateY(-1px); }
+
+.card-base {
+  background: var(--bg-card);
+  border: 1px solid rgba(var(--neon-rgb), 0.15);
+  border-radius: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.card-base:hover { border-color: rgba(var(--neon-rgb), 0.45); box-shadow: 0 0 20px var(--neon-glow); }
+
+input[type="text"], input[type="email"], input[type="password"],
+input[type="number"], textarea, select {
+  background: var(--bg-surface);
+  color: var(--texto-primary);
+  border: 1px solid rgba(var(--neon-rgb), 0.2);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-family: 'Nunito', sans-serif;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--neon);
+  box-shadow: 0 0 0 2px rgba(var(--neon-rgb), 0.15);
+}
+
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--neon-dark); border-radius: 3px; }
+
+.loader-spinner {
+  border: 3px solid rgba(var(--neon-rgb), 0.2);
+  border-top: 3px solid var(--neon);
+  border-radius: 50%;
+  width: 30px; height: 30px;
+  animation: spin 1s linear infinite;
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--neon-rgb), 0.12);
+}
+
+@media print {
+  body { background: white !important; color: black !important; }
+  .no-print, aside { display: none !important; }
+}

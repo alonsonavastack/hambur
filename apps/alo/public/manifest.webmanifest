@@ -1,0 +1,10 @@
+{
+  "name": "Hamburguesas ALO",
+  "short_name": "ALO",
+  "description": "Pide tus burgers, hot-dogs y tacos por WhatsApp",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050508",
+  "theme_color": "#00d4ff",
+  "icons": []
+}

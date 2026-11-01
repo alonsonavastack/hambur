@@ -1,0 +1,94 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Dueño del negocio: acceso total aunque aún no exista su documento en /usuarios.
+    // Solo se listan correos que YA existen en Authentication: en un correo que no exista
+    // cualquiera podría registrarse desde la app y heredar el acceso de administrador.
+    function isOwnerEmail() {
+      return isSignedIn() && request.auth.token.email in [
+        'hamburguesasalo@gmail.com'
+      ];
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        isOwnerEmail() ||
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    function isEmpleado() {
+      return isSignedIn() && (
+        isOwnerEmail() ||
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+         (get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'admin' ||
+          get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'empleado'))
+      );
+    }
+
+    // ── Colecciones públicas (lectura) ───────────────────────────
+    match /categorias/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /ingredientes/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /carnes/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /precios/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /populares/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /config/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── Pedidos ──────────────────────────────────────────────────
+    match /pedidos/{id} {
+      allow create: if true;
+      allow read, update: if isEmpleado();
+      allow delete: if isAdmin();
+    }
+
+    // ── Gastos ───────────────────────────────────────────────────
+    match /gastos/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Visitas ──────────────────────────────────────────────────
+    match /visits/{id} {
+      allow create: if true;
+      allow read: if isEmpleado();
+    }
+
+    // ── Usuarios ─────────────────────────────────────────────────
+    match /usuarios/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      // Nadie puede crear ni cambiar su propio rol: solo el dueño o un admin dan de alta y editan usuarios.
+      // (Si no, cualquiera que se registre desde la app podría ponerse como administrador.)
+      allow create, update, delete: if isAdmin();
+    }
+  }
+}

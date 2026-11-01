@@ -1,0 +1,93 @@
+<div>
+  <h1 style="font-family:var(--font-title); font-size:2rem; letter-spacing:0.07em; color:var(--neon); margin-bottom:0.25rem;">📊 Analíticas</h1>
+  <p style="color:var(--texto-secondary); font-size:0.9rem; margin-bottom:2rem;">Consulta y filtra el tráfico de tu menú por fechas · {{ brand.nombre }} 🍔</p>
+
+  <!-- Filtros -->
+  <div style="background:var(--bg-card); border:1px solid rgba(var(--neon-rgb), 0.3); border-radius:14px; padding:1.5rem; margin-bottom:2rem; max-width:800px; display:flex; gap:1.5rem; flex-wrap:wrap; align-items:flex-end;">
+    <div style="flex:1; min-width:200px;">
+      <label style="display:block; color:var(--texto-secondary); font-size:0.85rem; margin-bottom:0.4rem; font-family:'Nunito',sans-serif; font-weight:700;">Fecha Inicio</label>
+      <input type="date"
+        [value]="startDate()"
+        (change)="onStartDate($event)"
+        style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid rgba(var(--neon-rgb), 0.2); background:var(--bg-surface); color:var(--texto-primary); font-family:'Nunito',sans-serif;" />
+    </div>
+    <div style="flex:1; min-width:200px;">
+      <label style="display:block; color:var(--texto-secondary); font-size:0.85rem; margin-bottom:0.4rem; font-family:'Nunito',sans-serif; font-weight:700;">Fecha Fin</label>
+      <input type="date"
+        [value]="endDate()"
+        (change)="onEndDate($event)"
+        style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid rgba(var(--neon-rgb), 0.2); background:var(--bg-surface); color:var(--texto-primary); font-family:'Nunito',sans-serif;" />
+    </div>
+    <div style="flex:1; min-width:200px;">
+      <label style="display:block; color:var(--texto-secondary); font-size:0.85rem; margin-bottom:0.4rem; font-family:'Nunito',sans-serif; font-weight:700;">Agrupar por</label>
+      <select
+        [value]="groupBy()"
+        (change)="onGroupBy($event)"
+        style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid rgba(var(--neon-rgb), 0.2); background:var(--bg-surface); color:var(--texto-primary); font-family:'Nunito',sans-serif;">
+        <option value="auto">Automático</option>
+        <option value="minutos">Minutos</option>
+        <option value="horas">Horas</option>
+        <option value="dias">Días</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Resumen -->
+  <div style="background:var(--bg-card); border:1px solid rgba(var(--neon-rgb), 0.4); border-radius:14px; padding:1.5rem; max-width:800px; margin-bottom:2rem; display:flex; align-items:center; gap:1.5rem;"
+       onmouseenter="this.style.boxShadow='0 0 20px rgba(var(--neon-rgb), 0.2)'"
+       onmouseleave="this.style.boxShadow='none'">
+    <div style="font-size:3rem;">👀</div>
+    <div>
+      <div style="font-family:var(--font-title); font-size:2.5rem; font-weight:700; color:var(--neon);">{{ totalSelectedVisits() }}</div>
+      <div style="font-size:0.9rem; color:var(--texto-secondary); font-family:'Nunito',sans-serif;">Visitas en este periodo</div>
+    </div>
+  </div>
+
+  <!-- Gráfica -->
+  @if (filteredVisits().length > 0) {
+    <div style="background:var(--bg-card); border:1px solid rgba(var(--neon-rgb), 0.2); border-radius:14px; padding:1.5rem; max-width:800px; margin-bottom:2rem;">
+      <h2 style="font-family:var(--font-title); font-size:1.4rem; letter-spacing:0.05em; color:var(--neon); margin-bottom:1rem;">
+        {{ isSingleDay() ? 'Visitas por Hora (Hoy)' : 'Tendencia de Visitas' }}
+      </h2>
+      <div style="height:300px; position:relative;">
+        <canvas baseChart
+          [data]="chartData()"
+          [options]="chartOptions"
+          [type]="chartType">
+        </canvas>
+      </div>
+    </div>
+  }
+
+  <!-- Detalle por día -->
+  <div style="max-width:800px;">
+    <h2 style="font-family:var(--font-title); font-size:1.4rem; letter-spacing:0.05em; color:var(--neon); margin-bottom:1rem;">Registros Diarios</h2>
+
+    @if (filteredVisits().length > 0) {
+      <div style="background:var(--bg-card); border:1px solid rgba(var(--neon-rgb), 0.2); border-radius:14px; overflow:hidden;">
+        <table style="width:100%; border-collapse:collapse; text-align:left;">
+          <thead>
+            <tr style="background:rgba(var(--neon-rgb), 0.1); border-bottom:1px solid rgba(var(--neon-rgb), 0.2);">
+              <th style="padding:1rem; color:var(--texto-primary); font-size:0.9rem; font-family:'Nunito',sans-serif;">Fecha</th>
+              <th style="padding:1rem; color:var(--texto-primary); font-size:0.9rem; text-align:right; font-family:'Nunito',sans-serif;">Visitas</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredVisits(); track item.dateStr) {
+              <tr style="border-bottom:1px solid rgba(var(--neon-rgb), 0.1);">
+                <td style="padding:1rem; color:var(--texto-secondary); font-size:0.9rem; font-family:'Nunito',sans-serif;">{{ item.dateStr }}</td>
+                <td style="padding:1rem; color:var(--neon); font-size:1rem; font-weight:700; text-align:right; font-family:var(--font-title); letter-spacing:0.05em;">{{ item.count }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div style="background:var(--bg-card); border:1px dashed rgba(var(--neon-rgb), 0.3); border-radius:14px; padding:3rem 1rem; text-align:center;">
+        <span style="font-size:2.5rem;">📅</span>
+        <p style="color:var(--texto-secondary); margin-top:1rem; font-family:'Nunito',sans-serif;">No hay visitas registradas en este rango de fechas.</p>
+      </div>
+    }
+  </div>
+
+</div>

@@ -1,0 +1,129 @@
+<div style="max-width:800px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+      <h1 style="font-family:var(--font-title); font-size:2rem; letter-spacing:0.07em; color:var(--neon); margin:0 0 0.25rem;">⚙️ Configuraciones</h1>
+      <p style="color:var(--texto-secondary); font-size:0.9rem; margin:0;">Branding, contacto y módulos · {{ brand.nombre }} 🍔</p>
+    </div>
+  </div>
+
+  <!-- BRANDING / CONTACTO -->
+  <div class="card-base" style="padding:1.5rem; margin-bottom:1.5rem;">
+    <h3 style="font-family:var(--font-title); font-size:1.3rem; letter-spacing:0.05em; color:var(--neon); margin-bottom:1.5rem;">
+      📋 Datos de Contacto
+    </h3>
+
+    <div style="display:grid; gap:1.25rem; max-width:600px;">
+
+      <!-- Dirección -->
+      <div>
+        <label style="display:block; font-size:0.9rem; color:var(--texto-secondary); margin-bottom:0.4rem; font-weight:700; font-family:'Nunito',sans-serif;">
+          📍 Dirección de la Tienda
+        </label>
+        <textarea
+          [formField]="f.direccion"
+          rows="3"
+          placeholder="Ej: Av. Principal 123, Colonia Centro..."
+          style="width:100%; padding:0.75rem; border-radius:8px; background:var(--bg-surface); border:1px solid rgba(var(--neon-rgb), 0.2); color:var(--texto-primary); font-family:'Nunito',sans-serif; font-size:1rem; resize:vertical; outline:none; box-sizing:border-box;"
+          onfocus="this.style.borderColor='var(--neon)'; this.style.boxShadow='0 0 0 3px rgba(var(--neon-rgb), 0.15)';"
+          onblur="this.style.borderColor='rgba(var(--neon-rgb), 0.2)'; this.style.boxShadow='none';"
+        ></textarea>
+        <p style="font-size:0.75rem; color:var(--texto-muted); margin-top:0.3rem; font-family:'Nunito',sans-serif;">
+          Esta dirección aparecerá en el pie de página de la tienda.
+        </p>
+      </div>
+
+      <!-- Teléfono -->
+      <div>
+        <label style="display:block; font-size:0.9rem; color:var(--texto-secondary); margin-bottom:0.4rem; font-weight:700; font-family:'Nunito',sans-serif;">
+          📞 Teléfono de Contacto (WhatsApp)
+        </label>
+        <input type="tel"
+          [formField]="f.telefono"
+          placeholder="Ej: 5215551234567"
+          style="width:100%; padding:0.75rem; border-radius:8px; background:var(--bg-surface); border:1px solid rgba(var(--neon-rgb), 0.2); color:var(--texto-primary); font-family:'Nunito',sans-serif; font-size:1rem; outline:none; box-sizing:border-box;"
+          onfocus="this.style.borderColor='var(--neon)'; this.style.boxShadow='0 0 0 3px rgba(var(--neon-rgb), 0.15)';"
+          onblur="this.style.borderColor='rgba(var(--neon-rgb), 0.2)'; this.style.boxShadow='none';" />
+      </div>
+
+      <!-- Horario -->
+      <div>
+        <label style="display:block; font-size:0.9rem; color:var(--texto-secondary); margin-bottom:0.4rem; font-weight:700; font-family:'Nunito',sans-serif;">
+          ⏰ Horario de Atención
+        </label>
+        <input type="text"
+          [formField]="f.horario"
+          placeholder="Ej: 10:00 AM – 10:00 PM"
+          style="width:100%; padding:0.75rem; border-radius:8px; background:var(--bg-surface); border:1px solid rgba(var(--neon-rgb), 0.2); color:var(--texto-primary); font-family:'Nunito',sans-serif; font-size:1rem; outline:none; box-sizing:border-box;"
+          onfocus="this.style.borderColor='var(--neon)'; this.style.boxShadow='0 0 0 3px rgba(var(--neon-rgb), 0.15)';"
+          onblur="this.style.borderColor='rgba(var(--neon-rgb), 0.2)'; this.style.boxShadow='none';" />
+      </div>
+
+      <!-- Días -->
+      <div>
+        <label style="display:block; font-size:0.9rem; color:var(--texto-secondary); margin-bottom:0.4rem; font-weight:700; font-family:'Nunito',sans-serif;">
+          📅 Días de Disponibilidad
+        </label>
+        <input type="text"
+          [formField]="f.dias"
+          placeholder="Ej: Lunes a Sábado"
+          style="width:100%; padding:0.75rem; border-radius:8px; background:var(--bg-surface); border:1px solid rgba(var(--neon-rgb), 0.2); color:var(--texto-primary); font-family:'Nunito',sans-serif; font-size:1rem; outline:none; box-sizing:border-box;"
+          onfocus="this.style.borderColor='var(--neon)'; this.style.boxShadow='0 0 0 3px rgba(var(--neon-rgb), 0.15)';"
+          onblur="this.style.borderColor='rgba(var(--neon-rgb), 0.2)'; this.style.boxShadow='none';" />
+      </div>
+
+      <!-- Botón guardar -->
+      <div style="margin-top:0.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+        <button (click)="save()" [disabled]="saving()"
+          style="background:linear-gradient(135deg,var(--neon-dark),var(--neon)); color:#050508; border:none; padding:0.75rem 1.75rem; border-radius:8px; font-family:'Nunito',sans-serif; font-size:0.95rem; font-weight:800; cursor:pointer; transition:all 0.2s; box-shadow:0 4px 15px var(--neon-glow);"
+          onmouseenter="if(!this.disabled){this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(var(--neon-rgb), 0.5)';}"
+          onmouseleave="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(var(--neon-rgb), 0.4)';">
+          {{ saving() ? '⏳ Guardando...' : '💾 Guardar Cambios' }}
+        </button>
+        @if (showSuccess()) {
+          <span style="color:var(--neon-green); font-size:0.9rem; font-weight:700; display:flex; align-items:center; gap:0.4rem; font-family:'Nunito',sans-serif;">
+            ✅ ¡Guardado con éxito!
+          </span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- MÓDULO TACOS -->
+  <div class="card-base" style="padding:1.5rem;">
+    <h3 style="font-family:var(--font-title); font-size:1.3rem; letter-spacing:0.05em; color:var(--neon); margin-bottom:0.5rem;">
+      🌮 Módulo de Tacos
+    </h3>
+    <p style="font-size:0.85rem; color:var(--texto-secondary); margin-bottom:1.25rem; font-family:'Nunito',sans-serif;">
+      Activa o desactiva la categoría de Tacos en la página principal del cliente.
+    </p>
+
+    <div style="display:flex; align-items:center; gap:1rem;">
+      <!-- Toggle switch -->
+      <button type="button"
+        (click)="toggleTacos()"
+        [disabled]="savingTacos()"
+        style="position:relative; width:52px; height:28px; border-radius:14px; border:none; cursor:pointer; transition:background 0.25s; flex-shrink:0; padding:0;"
+        [style.background]="fb.tacosActivos() ? 'linear-gradient(135deg,var(--neon-green-dark),var(--neon-green))' : 'var(--bg-surface)'"
+        [style.border]="fb.tacosActivos() ? '1px solid var(--neon-green)' : '1px solid rgba(var(--neon-rgb), 0.25)'">
+        <span style="position:absolute; top:3px; width:20px; height:20px; border-radius:50%; background:white; box-shadow:0 1px 4px rgba(0,0,0,0.4); transition:left 0.25s;"
+          [style.left]="fb.tacosActivos() ? '28px' : '4px'"></span>
+      </button>
+
+      <div>
+        <p style="font-size:0.9rem; font-weight:700; color:var(--texto-primary); margin:0; font-family:'Nunito',sans-serif;">
+          Tacos {{ fb.tacosActivos() ? '— Activados ✅' : '— Desactivados ❌' }}
+        </p>
+        <p style="font-size:0.78rem; color:var(--texto-muted); margin:0.15rem 0 0; font-family:'Nunito',sans-serif;">
+          {{ fb.tacosActivos()
+              ? 'La categoría 🌮 Tacos es visible para los clientes.'
+              : 'La categoría 🌮 Tacos está oculta en el menú del cliente.' }}
+        </p>
+      </div>
+
+      @if (savingTacos()) {
+        <span style="font-size:0.8rem; color:var(--neon); font-family:'Nunito',sans-serif;">⏳ Guardando...</span>
+      }
+    </div>
+  </div>
+
+</div>

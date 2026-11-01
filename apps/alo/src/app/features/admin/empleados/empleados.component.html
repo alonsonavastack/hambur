@@ -1,0 +1,146 @@
+<div style="max-width:900px; margin:0 auto;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
+    <div>
+      <h2 style="font-family:'Cinzel',serif; font-size:1.8rem; font-weight:700; color:var(--blanco); margin:0; text-shadow:0 0 10px rgba(255,255,255,0.1);">
+        <span style="color:var(--neon-light);">🧑‍💼</span> Empleados
+      </h2>
+      <p style="color:var(--texto-secondary); font-size:0.9rem; margin-top:0.4rem;">
+        Gestiona los accesos de tu equipo al panel administrativo.
+      </p>
+    </div>
+    <button (click)="openCreate()" style="
+      background: var(--neon); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px;
+      font-family: 'Nunito', sans-serif; font-weight: 700; cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 0 15px var(--neon-glow);
+    " onmouseenter="this.style.background='var(--neon-light)'" onmouseleave="this.style.background='var(--neon)'">
+      ＋ Nuevo Empleado
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div style="text-align:center; padding:3rem; color:var(--texto-secondary);">Cargando empleados...</div>
+  } @else {
+    <div style="background:var(--bg-card); border-radius:12px; border:1px solid rgba(192,38,211,0.1); overflow:hidden;">
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; min-width:600px;">
+          <thead>
+            <tr style="background:rgba(0,0,0,0.2); border-bottom:1px solid rgba(255,255,255,0.05); text-align:left;">
+              <th style="padding:1rem; color:var(--texto-secondary); font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Nombre</th>
+              <th style="padding:1rem; color:var(--texto-secondary); font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Correo</th>
+              <th style="padding:1rem; color:var(--texto-secondary); font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Estado</th>
+              <th style="padding:1rem; color:var(--texto-secondary); font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em; text-align:right;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (emp of empleados(); track emp.id) {
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.02)'" onmouseleave="this.style.background='transparent'">
+                <td style="padding:1rem; color:var(--texto-primary); font-weight:600;">
+                  {{ emp.nombre }}
+                </td>
+                <td style="padding:1rem; color:var(--texto-secondary); font-size:0.9rem;">
+                  {{ emp.email }}
+                </td>
+                <td style="padding:1rem;">
+                  @if (emp.role === 'empleado') {
+                    <span style="display:inline-block; padding:0.25rem 0.6rem; border-radius:12px; font-size:0.75rem; font-weight:700; background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3);">
+                      Activo
+                    </span>
+                  } @else {
+                    <span style="display:inline-block; padding:0.25rem 0.6rem; border-radius:12px; font-size:0.75rem; font-weight:700; background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3);">
+                      Inactivo
+                    </span>
+                  }
+                </td>
+                <td style="padding:1rem; text-align:right; gap:0.5rem; display:flex; justify-content:flex-end;">
+                  <button (click)="toggleActivo(emp)" style="
+                    background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--texto-secondary);
+                    padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+                  " onmouseenter="this.style.background='rgba(255,255,255,0.05)'; this.style.color='var(--texto-primary)'" onmouseleave="this.style.background='transparent'; this.style.color='var(--texto-secondary)'">
+                    {{ emp.role === 'inactivo' ? 'Activar' : 'Desactivar' }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" style="padding:3rem; text-align:center; color:var(--texto-muted);">
+                  <div style="font-size:3rem; margin-bottom:1rem; opacity:0.5;">🧑‍💼</div>
+                  No hay empleados registrados.<br/>Haz clic en "Nuevo Empleado" para comenzar.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Modal Crear Empleado -->
+@if (modalOpen()) {
+  <div style="position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; padding:1rem;">
+    <div (click)="closeModal()" style="position:absolute; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);"></div>
+    
+    <div style="background:var(--bg-card); border:1px solid rgba(192,38,211,0.2); border-radius:16px; width:100%; max-width:400px; position:relative; z-index:101; box-shadow:0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05); display:flex; flex-direction:column; max-height:90vh;">
+      
+      <div style="padding:1.5rem; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; font-family:'Cinzel',serif; font-size:1.2rem; color:var(--neon-light);">Nuevo Empleado</h3>
+        <button (click)="closeModal()" style="background:none; border:none; color:var(--texto-muted); font-size:1.5rem; cursor:pointer; line-height:1; transition:color 0.2s;" onmouseenter="this.style.color='var(--texto-primary)'" onmouseleave="this.style.color='var(--texto-muted)'">&times;</button>
+      </div>
+
+      <div style="padding:1.5rem; overflow-y:auto;">
+        @if (error()) {
+          <div style="background:rgba(220,38,38,0.1); border:1px solid rgba(220,38,38,0.3); color:#ef4444; padding:0.75rem; border-radius:8px; font-size:0.85rem; margin-bottom:1.5rem;">
+            {{ error() }}
+          </div>
+        }
+
+        <form (submit)="$event.preventDefault(); save()" style="display:flex; flex-direction:column; gap:1.25rem;">
+          
+          <div style="display:flex; flex-direction:column; gap:0.4rem;">
+            <label style="font-size:0.85rem; font-weight:600; color:var(--texto-secondary);">Nombre del empleado</label>
+            <input type="text" [formField]="f.nombre" placeholder="Ej. Juan Pérez" style="
+              width: 100%; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+              background: rgba(0,0,0,0.2); color: var(--texto-primary); font-family: 'Nunito', sans-serif;
+              transition: all 0.2s; outline: none;
+            " onfocus="this.style.border='1px solid var(--neon)'; this.style.boxShadow='0 0 0 2px rgba(192,38,211,0.2)'" onblur="this.style.border='1px solid rgba(255,255,255,0.1)'; this.style.boxShadow='none'" />
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:0.4rem;">
+            <label style="font-size:0.85rem; font-weight:600; color:var(--texto-secondary);">Correo electrónico</label>
+            <input type="email" [formField]="f.email" [placeholder]="'empleado@' + brand.shareHost.replace('.netlify.app', '.com')" style="
+              width: 100%; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+              background: rgba(0,0,0,0.2); color: var(--texto-primary); font-family: 'Nunito', sans-serif;
+              transition: all 0.2s; outline: none;
+            " onfocus="this.style.border='1px solid var(--neon)'; this.style.boxShadow='0 0 0 2px rgba(192,38,211,0.2)'" onblur="this.style.border='1px solid rgba(255,255,255,0.1)'; this.style.boxShadow='none'" />
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:0.4rem;">
+            <label style="font-size:0.85rem; font-weight:600; color:var(--texto-secondary);">Contraseña temporal</label>
+            <input type="password" [formField]="f.password" placeholder="Mínimo 6 caracteres" style="
+              width: 100%; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+              background: rgba(0,0,0,0.2); color: var(--texto-primary); font-family: 'Nunito', sans-serif;
+              transition: all 0.2s; outline: none;
+            " onfocus="this.style.border='1px solid var(--neon)'; this.style.boxShadow='0 0 0 2px rgba(192,38,211,0.2)'" onblur="this.style.border='1px solid rgba(255,255,255,0.1)'; this.style.boxShadow='none'" />
+          </div>
+
+        </form>
+      </div>
+
+      <div style="padding:1.25rem 1.5rem; border-top:1px solid rgba(255,255,255,0.05); display:flex; justify-content:flex-end; gap:1rem; background:rgba(0,0,0,0.2); border-radius:0 0 16px 16px;">
+        <button type="button" (click)="closeModal()" style="
+          background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--texto-secondary);
+          padding: 0.6rem 1.2rem; border-radius: 8px; font-family: 'Nunito', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s;
+        " onmouseenter="this.style.background='rgba(255,255,255,0.05)'; this.style.color='var(--texto-primary)'" onmouseleave="this.style.background='transparent'; this.style.color='var(--texto-secondary)'">
+          Cancelar
+        </button>
+        <button type="button" (click)="save()" [disabled]="f().invalid() || saving()" style="
+          background: var(--neon); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px;
+          font-family: 'Nunito', sans-serif; font-weight: 700; cursor: pointer; transition: all 0.2s;
+        " [style.opacity]="f().invalid() || saving() ? '0.5' : '1'" [style.cursor]="f().invalid() || saving() ? 'not-allowed' : 'pointer'"
+        onmouseenter="if(!this.disabled) this.style.background='var(--neon-light)'" onmouseleave="if(!this.disabled) this.style.background='var(--neon)'">
+          {{ saving() ? 'Guardando...' : 'Crear Empleado' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
